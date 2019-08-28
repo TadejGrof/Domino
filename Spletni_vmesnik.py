@@ -17,7 +17,7 @@ def osnovna_stran():
     if serija == None:
         return bottle.template('osnovna_stran.tpl')
     else:
-        return 'igra že poteka'
+        return 'igra ze poteka'
 
 @bottle.post('/igra/')
 def igra_stran():
@@ -28,15 +28,15 @@ def igra_stran():
         serija.nova_igra()
         return bottle.template('igra_stran.tpl', serija = serija)
     else: 
-        return 'igra že poteka'
+        return 'igra ze poteka'
 
-def začetna_poteza(igra):
+def zacetna_poteza(igra):
     igra.razdeli()
     poteza = igra.zacetna_poteza()
-    igra.določi_igralca_na_potezi(poteza.igralec)
+    igra.doloci_igralca_na_potezi(poteza.igralec)
     igra.poteza(poteza)
     if igra.igralec_na_potezi == igra.igralec2:
-        while igra.igralec2.število_moznih_potez(igra.igrane_domine) == 0:
+        while igra.igralec2.stevilo_moznih_potez(igra.igrane_domine) == 0:
             while len(igra.nerazdeljene_domine) > 0:
                 igra.igralec2.dodaj_domino(igra.nakljucna_iz_nerazdeljenih())
         igra.nakljucna_poteza()
@@ -60,13 +60,13 @@ def igralceva_poteza(igra):
     return besedilo
 
 def poteza(igra):
-    možne_poteze = igra.igralec_na_potezi.število_moznih_potez(igra.igrane_domine)
-    if možne_poteze == 0:
+    mozne_poteze = igra.igralec_na_potezi.stevilo_moznih_potez(igra.igrane_domine)
+    if mozne_poteze == 0:
         if len(igra.nerazdeljene_domine) > 0:
             besedilo = dodaj_domino(igra)
         elif len(igra.nerazdeljene_domine) == 0:
             besedilo = brez_poteze(igra)
-    elif možne_poteze > 0:
+    elif mozne_poteze > 0:
         besedilo = igralceva_poteza(igra)
     return besedilo
 
@@ -75,7 +75,7 @@ def nova_igra_stran():
     global serija
     igra = serija.aktivna_igra
     if len(igra.poteze) == 0:
-        začetna_poteza(igra)
+        zacetna_poteza(igra)
         return bottle.template('partija.tpl',igra = igra, besedilo = '')
     else:
         if not igra.je_konec_igre():

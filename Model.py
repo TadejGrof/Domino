@@ -44,7 +44,7 @@ class Igra:
         self.poteze = []
         self.koncana = False
 
-    def določi_design(self):
+    def doloci_design(self):
         self.design = Igra_design()
 
     def konec_igre(self, serija):
@@ -76,14 +76,14 @@ class Igra:
         for igralec in self.igralci:
             if len(igralec.domine) == 0:
                 return igralec
-        if self.igralec1.število_pik() > self.igralec2.število_pik():
+        if self.igralec1.stevilo_pik() > self.igralec2.stevilo_pik():
             return self.igralec2
-        elif self.igralec1.število_pik() < self.igralec2.število_pik():
+        elif self.igralec1.stevilo_pik() < self.igralec2.stevilo_pik():
             return self.igralec1
-        elif self.igralec1.število_pik() == self.igralec2.število_pik():
+        elif self.igralec1.stevilo_pik() == self.igralec2.stevilo_pik():
             return self.zadnja_poteza().igralec
 
-    def število_potez(self,stran = ""):
+    def stevilo_potez(self,stran = ""):
         if stran == "":
             return len(self.poteze)
         elif stran == "L" or stran == "D":
@@ -96,17 +96,17 @@ class Igra:
             return 0
 
     def zaporedna_poteza(self,moja_poteza):
-        število = 0
+        stevilo = 0
         if moja_poteza.stran == "S":
-            return število
+            return stevilo
         else:
             for poteza in self.poteze:
                 if poteza != moja_poteza:
                     if poteza.stran == moja_poteza.stran:
-                        število += 1
+                        stevilo += 1
                 elif poteza == moja_poteza:
                     break
-            return število + 1
+            return stevilo + 1
 
     def zadnja_poteza(self,stran = ""):
         if stran == "":
@@ -154,7 +154,7 @@ class Igra:
             for _ in range(7):
                 igralec.dodaj_domino(self.nakljucna_iz_nerazdeljenih())
     
-    def določi_igralca_na_potezi(self,igralec):
+    def doloci_igralca_na_potezi(self,igralec):
         self.igralec_na_potezi = igralec
 
     def zacetna_poteza(self):
@@ -282,7 +282,7 @@ class Igrane_domine:
         return False
         
 class Igralec:
-    def __init__(self,ime = "Računalnik"):
+    def __init__(self,ime = "Racunalnik"):
         self.domine = []
         self.ime = ime
         self.skupne_tocke = 0
@@ -294,11 +294,11 @@ class Igralec:
     def __str__(self):
         return self.ime
 
-    def število_pik(self):
-        število_pik = 0
+    def stevilo_pik(self):
+        stevilo_pik = 0
         for domino in self.domine:
-            število_pik += domino.leve_pike + domino.desne_pike
-            return število_pik
+            stevilo_pik += domino.leve_pike + domino.desne_pike
+            return stevilo_pik
 
 
 
@@ -315,11 +315,11 @@ class Igralec:
         elif self == igra.igralec2:
             return igra.igralec1
 
-    def število_domin(self):
+    def stevilo_domin(self):
         return len(self.domine)
 
     def zadnje_domino(self):
-        return self.domine[self.število_domin() -1] 
+        return self.domine[self.stevilo_domin() -1] 
 
     def dodaj_domino(self,domino):
         self.domine.append(domino)
@@ -372,7 +372,7 @@ class Igralec:
                 mozne_poteze.append(Poteza(domino,"D",self,True))
         return mozne_poteze
 
-    def število_moznih_potez(self,igrane_domine):
+    def stevilo_moznih_potez(self,igrane_domine):
         return len(self.mozne_poteze(igrane_domine))
 
 class Poteza:
@@ -382,7 +382,7 @@ class Poteza:
         self.igralec = igralec
         self.obrnjeno = obrnjeno
 
-    def določi_design(self,igra):
+    def doloci_design(self,igra):
         self.design = Poteza_design(igra,self)
 
 
