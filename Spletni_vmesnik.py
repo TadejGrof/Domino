@@ -6,28 +6,12 @@ oznacena_domina = None
 gledana_igra = None
 
 #######################################################################################################
-@bottle.route('/naslovna_stran/design/<filepath:path>')
-def server_static1(filepath):
+@bottle.route('/<karkoli>/design/<filepath:path>')
+def server_static1(karkoli,filepath):
     return bottle.static_file(filepath, root = "./static/")
 
-@bottle.route('/domino/design/<filepath:path>')
-def server_static2(filepath):
-    return bottle.static_file(filepath, root = "./static/")
-
-@bottle.route('/konec_partije/design/<filepath:path>')
-def server_static3(filepath):
-    return bottle.static_file(filepath, root = "./static/")
-
-@bottle.route('/konec_partije/ogled_partije/design/<filepath:path>')
-def server_static4(filepath):
-    return bottle.static_file(filepath, root = "./static/")
-
-@bottle.route('/konec_serije/design/<filepath:path>')
-def server_static5(filepath):
-    return bottle.static_file(filepath, root = "./static/")
-
-@bottle.route('/konec_serije/ogled_partije/design/<filepath:path>')
-def server_static6(filepath):
+@bottle.route('/<karkoli1>/<karkoli2>/design/<filepath:path>')
+def server_static4(karkoli1,karkoli2,filepath):
     return bottle.static_file(filepath, root = "./static/")
 
 #########################################################################################################
