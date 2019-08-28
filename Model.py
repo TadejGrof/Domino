@@ -1,4 +1,20 @@
 import random
+class Serija_Iger:
+    def __init__(self, igralec1, igralec2, tocke_za_zmago = 100):
+        self.igralec1 = igralec1
+        self.igralec2 = igralec2
+        self.koncane_igre = []
+        self.tocke_za_zmago = tocke_za_zmago
+        
+    def nova_igra(self):
+        self.aktivna_igra = Igra(self.igralec1, self.igralec2)
+
+    def vodilni(self):
+        if self.igralec1.skupne_tocke >= self.igralec2.skupne_tocke:
+            return self.igralec1
+        elif self.igralec2.skupne_tocke > self.igralec1.skupne_tocke:
+            return self.igralec2
+        
 
 class Igra:
     def __init__(self, igralec1, igralec2):
@@ -7,6 +23,7 @@ class Igra:
         self.igralec2 = igralec2
         self.igrane_domine = Igrane_domine()
         self.nerazdeljene_domine = [Domino(n,i) for n in range(6,-1,-1) for i in range(n,-1,-1)]
+        self.poteze = []
 
     def koncne_tocke(self):
         sestevek = 0
@@ -50,10 +67,8 @@ class Igra:
         self.igralec_na_potezi = self.igralec1          
 
     def naslednji_na_potezi(self):
-        if self.igralec_na_potezi == self.igralec1:
-            self.igralec_na_potezi = self.igralec2
-        elif self.igralec_na_potezi == self.igralec2:
-            self.igralec_na_potezi = self.igralec1
+        self.igralec_na_potezi = self.igralec_na_potezi.nasprotnik(self)
+       
 
     def nakljucna_poteza(self):
         mozne_poteze = self.igralec_na_potezi.mozne_poteze(self.igrane_domine)
@@ -133,10 +148,20 @@ class Igralec:
     def __init__(self,ime = "Računalnik"):
         self.domine = []
         self.ime = ime
+        self.skupne_tocke = 0
 
     def __repr__(self):
         return self.ime
 
+    def __str__(self):
+        return self.ime
+
+    def nasprotnik(self,igra):
+        if self == igra.igralec1:
+            return igra.igralec2
+        elif self == igra.igralec2:
+            return igra.igralec1
+        
     def dodaj_domino(self,domino):
         self.domine.append(domino)
 
@@ -145,6 +170,9 @@ class Igralec:
         for domino in self.domine:
             razpolozljive_domine.append(domino.domino)
         return razpolozljive_domine
+
+    def tocke_po_zmagi(self,tocke):
+        self.skupne_tocke += tocke
 
     #def poteza(self,igrane_domine,poteza):
 
@@ -190,6 +218,9 @@ class Domino:
         self.domino = (leve_pike,desne_pike)
         self.obrnjeno_domino = (desne_pike, leve_pike)
         self.pike = leve_pike + desne_pike
+    
     def __repr__(self):
         return '({}, {})'.format(self.leve_pike, self.desne_pike)
     
+    def ___str___(self):
+        return '({}, {})'.format(self.leve_pike, self.desne_pike)
