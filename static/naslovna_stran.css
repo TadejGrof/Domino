@@ -1,0 +1,16 @@
+body{
+    background-color:brown;
+    margin:0%;
+    padding:0%;
+}
+
+div.prijava{
+    font-size:30px;
+    background-color:white;
+    position:absolute;
+    width: 30%;
+    height: 40%;
+    left: 35%;
+    top: 30%;
+}
+

@@ -1,0 +1,101 @@
+body{
+    margin:0%;
+    padding:0%;
+    background-color:lightsalmon
+}
+div.polje{
+    background-color:rgb(172, 86, 57);
+    position: absolute;
+    margin: 0%;
+    padding: 0%;
+    left:11%;
+    top: 16%;
+    width: 78%;
+    height: 60%;
+}
+
+div.leva_nerazdeljene{
+    background-color:maroon;
+    position: absolute;
+    margin:0%;
+    padding: 0%;
+    left: 3%;
+    top: 2%;
+    width: 8%;
+    height: 88%
+}
+div.desna_nerazdeljene{
+    background-color:maroon;
+    margin: 0%;
+    padding: 0%;
+    position:absolute;
+    left: 89%;
+    top:2%;
+    height:88%;
+    width: 8%
+}
+
+div.racunalnik{
+    background-color:maroon;
+    margin: 0%;
+    padding: 0%;
+    position: absolute;
+    left: 11%;
+    top: 2%;
+    height: 14%;
+    width: 78%
+}
+
+div.igralec{
+    background-color:maroon;
+    margin: 0%;
+    padding: 0%;
+    position: absolute;
+    left: 11%;
+    top: 76%;
+    height: 14%;
+    width: 78%
+}
+
+div.forms{
+    position:absolute;
+    margin:0%;
+    padding:0%;
+    left:5%;
+    top:92%;
+    height:6%;
+    width:90%
+}
+
+body{
+    margin: 0%;
+    padding: 0%;
+}
+
+figure{
+    margin: 0%;
+    padding: 0%;
+}
+
+form{
+    position: absolute;
+    left: 42%;
+    top: 92%;
+}
+
+form.dvojno_levo{
+    position: absolute;
+    left: 30%;
+    top: 92%;
+}
+
+form.dvojno_desno{
+    position: absolute;
+    left: 50%;
+    top: 92%;
+}
+
+input[type=submit]{
+    width: 200px;
+    height: 30px;
+}
