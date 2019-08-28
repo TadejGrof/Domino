@@ -1,78 +1,104 @@
+import random
+
 class Igra:
     def __init__(self, igralec1, igralec2):
+        self.igralci = [igralec1, igralec2]
         self.igralec1 = igralec1
         self.igralec2 = igralec2
+        self.igrane_domine = Igrane_domine()
+        #novi class nerazdeljene_domine
+        self.nerazdeljene_domine = [ Domino(6,6), Domino(6,5), Domino(6,4), Domino(6,3), Domino(6,2), Domino (6,1), Domino(6,0),
+                        Domino(5,5), Domino(5,4), Domino(5,3), Domino(5,2), Domino(5,1), Domino(5,0),
+                        Domino(4,4), Domino(4,3), Domino(4,2), Domino(4,1), Domino(4,0),
+                        Domino(3,3), Domino(3,2), Domino(3,1), Domino(3,0),
+                        Domino(2,2), Domino(2,1), Domino(2,0),
+                        Domino(1,1), Domino(1,0),
+                        Domino(0,0)]
+
+    def razdeli(self):
+        for igralec in self.igralci:
+            for _ in range(7):
+                nakljucna_domina = random.choice(self.nerazdeljene_domine)
+                igralec.dodaj_domino(nakljucna_domina)
+                self.nerazdeljene_domine.remove(nakljucna_domina)
     
-    def zacni(self,igralec):
-        self.igralec_na_potezi = igralec
-    
+    def zacni_igro(self):
+        for n in range(6,-1,-1):
+            for igralec in self.igralci:
+                if Domino(n,n).domino in igralec.domine:
+                    self.igralec_na_potezi = igralec
+                    igralec.poteza(Domino(n,n))
+                    self.igrane_domine.dodaj_prvo(Domino(n,n))
+                    self.naslednji_na_potezi()
+                    return
+        self.igralec_na_potezi = self.igralec1          
+
     def naslednji_na_potezi(self):
         if self.igralec_na_potezi == self.igralec1:
             self.igralec_na_potezi = self.igralec2
         elif self.igralec_na_potezi == self.igralec2:
             self.igralec_na_potezi = self.igralec1
 
-    def je_konec_igre(self):
-        if self.igralec1.stevilo_domin == 0 or self.igralec2.stevilo_domin == 0:
-            return True
-        elif self.igralec1.stevilo_moznih_potez == 0 and self.igralec2.stevilo_moznih_potez == 0:
-            return True
-        return False
 
+    def poteza(self):
+        self.igralec_na_potezi.poteza()
 
-class Tabla:   
-    def ___init___(self,Domino):
-        self.igrane_domine = [Domino]
-        self.leva_stran = Domino.leve_pike
-        self.desna_stran = Domino.desne_pike
+class Igrane_domine:
+    def __init__(self):
+        self.igrane = []
 
-    def igraj_na_levi(self,Domino):
-        self.igrane_domine = self.igrane_domine.insert(0,Domino)
-        self.leva_stran = Domino.leve_pike
+    def __repr__(self):
+        tabla = ' '
+        if len(self.igrane) != 0:
+            for domino in self.igrane:
+                tabla = tabla + domino + " " 
+            return tabla
 
-    def igraj_na_desni(self,Domino):
-        self.igrane_domine = self.igrane_domine.append(Domino)
-        self.desna_stran = Domino.desne_pike
+    def dodaj_na_levi(self,domino):
+        self.igrane.insert(0,domino.domino)
+        self.leva_stran = domino.leve_pike
+
+    def dodaj_na_desni(self,domino):
+        self.igrane.append(domino.domino)
+        self.desna_stran = domino.desne_pike
+
+    def dodaj_prvo(self,domino):
+        self.igrane.append(domino.domino)
+        self.leva_stran = domino.leve_pike
+        self.desna_stran = domino.desne_pike
+
     
 
 
+    
 class Igralec:
-    def stevilo_domin(self,Igralceve_domine):
-        return len(Igralceve_domine.domine)
-    
-    def stevilo_motnih_potez(self,Igralceve_domine):
-        return len(Igralceve_domine.mozne_poteze)
+    def __init__(self):
+        self.domine = []
 
-    def igraj(self,Domino,Stran):
-            Tabla.dodaj(Domino,Stran)
-            Igralceve_Domine.Domine = igralceve_domine.Domine.Pop(Domino)
-            Igra.naslednji_na_potezi()
+    def dodaj_domino(self,domino):
+        Domine = self.domine
+        Domine.append(domino.domino)
+        self.domine = Domine
 
+    def razpolozljive_domine(self):
+        return self.domine
 
-class Igralceve_Domine:
-    def __init__(self,domine):
-        self.Domine = domine
-
-    def mozne_poteze(self):
-        seznam_moznih_potez = []
-        for Domino in self.Domine:
-            if Tabla.je_mozna_poteza(Domino,"L"):
-                seznam_moznih_potez.append((Domino,"L"))
-            if Tabla.je_mozna_poteza(Domino,"R"):
-                seznam_moznih_potez.append((Domino,"L"))
-        return seznam_moznih_potez
-
+    def poteza(self,domino):
+        self.domine.remove(domino.domino)
 
 class Domino:
-    def __init__(self,leva,desna):
-        self.domino = [leva,desna]
-        self.leve_pike = leva
-        self.desne_pike = desna
+    def __init__(self,leve_pike, desne_pike):
+        self.leve_pike = leve_pike
+        self.desne_pike = desne_pike
+        self.domino = (leve_pike,desne_pike)
+    
+    def __repr__(self):
+        return '({}, {})'.format(self.leve_pike, self.desne_pike)
+    
     
     def obrni(self):
-        self.domino = [self.desna,self.leva]
-        leva = self.leve_pike
-        self.leve_pike = self.desne_pike
-        self.desne_pike = leva
+        self.domino = self.domino.reverse()
+        self.leve_pike = self.domino(0)
+        self.desne_pike = self.domino(1)
 
 
