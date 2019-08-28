@@ -1,0 +1,42 @@
+body{
+    background-color: white
+}
+
+div.racunalnik{
+    background-color: aqua;
+    position: fixed;
+    left: 10%;
+    width: 80%;
+    top: 5%;
+    height: 10%
+ }
+
+div.polje{
+     background-color: tan;
+     position: fixed;
+     left: 10%;
+     width:80%;
+     top: 20%;
+     height: 40%
+ }
+ div.besedilo{
+     position: fixed;
+     left:10%;
+     width:10%;
+     top: 80%;
+ }
+ div.igralec{
+    background-color: aqua;
+    position: fixed;
+    left: 10%;
+    width:80%;
+    top: 65%;
+    height: 10%
+}
+form{
+    position: fixed;
+    left:45%;
+    width:5%;
+    top:80%;
+    height: 3%
+}
