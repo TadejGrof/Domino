@@ -1,4 +1,5 @@
 import random
+import datetime
 
 class Serija_Iger:
     def __init__(self, igralec1, igralec2, tocke_za_zmago = 100):
@@ -166,6 +167,7 @@ class Igra:
         self.koncana = True
         self.zmagovalec = self.vrni_zmagovalca()
         self.koncne_tocke = self.vrni_koncne_tocke()
+        self.cas_konca = datetime.datetime.now()
         for igralec in self.igralci:
             igralec.konec_igre()
         if self.je_kapikua():
@@ -211,6 +213,16 @@ class Igrane_domine:
         elif stran == "D":
             return self.desna_stran
 
+    def stevilo_igranih(self,specificno_stevilo = None):
+        if specificno_stevilo == None:
+            return len(self.igrane)
+        else:
+            stevilo = 0
+            for domino in self.igrane:
+                if specificno_stevilo in domino:
+                    stevilo += 1
+            return stevilo
+
     def doloci_stran(self):
             self.leva_stran = self.igrane[0][0]
             self.desna_stran = self.igrane[-1][1]
@@ -240,6 +252,12 @@ class Igrane_domine:
     def se_lahko_doda_na_obeh(self,domino):
         return self.se_lahko_doda_na_stran(domino,"L") and self.se_lahko_doda_na_stran(domino,"D")
     
+    def se_zapre_na_eno_stran(self,poteza):
+        stran = poteza.stran
+        for pike in poteza.domino.domino:
+            if pike == self.stran(stran):
+                return self.stran(self.druga_stran(stran)) == poteza.domino.druge_pike(pike)
+
     def je_prava_domina(self,domina):
         if domina.leve_pike == self.leva_stran:
             return True
@@ -275,7 +293,8 @@ class Igrane_domine:
             for n in range(len(self.igrane)-1):
                 igrane_domine.append(self.igrane[n])
             return Igrane_domine(igrane_domine)
-    
+
+
 class Igralec:
     def __init__(self,ime = "Racunalnik"):
         self.domine = []
@@ -290,6 +309,11 @@ class Igralec:
     def __str__(self):
         return self.ime
 
+    def skrite_domine(self):
+        skrite_domine = ''
+        for _ in self.domine:
+            skrite_domine += ' [ | ]'
+        return skrite_domine
     ###########################################################################################################
 
     def nova_igra(self):
@@ -302,8 +326,15 @@ class Igralec:
             stevilo_pik += domino.pike
         return stevilo_pik
 
-    def stevilo_domin(self):
-        return len(self.domine)
+    def stevilo_domin(self, specificno_stevilo = None):
+        if specificno_stevilo == None:
+            return len(self.domine)
+        else:
+            stevilo = 0
+            for domino in self.domine:
+                if specificno_stevilo in domino.domino:
+                    stevilo += 1
+            return stevilo
 
     def nasprotnik(self,igra):
         if self == igra.igralec1:
@@ -335,6 +366,126 @@ class Igralec:
         self.odstrani_domino(nakljucna_poteza.domino)
         return nakljucna_poteza
 
+#################################################################################################################
+    
+    def premisljena_prva_poteza(self):
+        prestete_domine = {n:self.stevilo_domin(n) for n in range(7)}
+        dvojne_domine = [domino.leve_pike for domino in self.domine if domino.je_dvojna()]
+        najvec_domin = max(prestete_domine.values())
+        seznam_domin = [domino for domino in prestete_domine if prestete_domine[domino] == najvec_domin ]
+        for domino in dvojne_domine[::-1]:
+            if prestete_domine[domino] == najvec_domin:
+                return Poteza(Domino(domino,domino),"S",self)
+        for domino in dvojne_domine[::-1]:
+            if prestete_domine[domino] > 1:
+                return Poteza(Domino(domino,domino),"S",self)
+        if len(seznam_domin) == 2 and najvec_domin == 3:
+            for domino in self.domine:
+                if domino == Domino(seznam_domin[1],seznam_domin[0]):
+                    return Poteza(domino,"S",self)
+        for domino in seznam_domin[::-1]:
+            for domina in self.domine:
+                if domina.ima_specificne_pike(domino) and prestete_domine[domina.druge_pike(domino)]> 1:
+                    return Poteza(domina,"S",self)
+        return Poteza(random.choice(self.domine),"S",self)
+
+    def zgodnja_premisljena_poteza(self,igrane_domine):
+        prestete_domine = {n:self.stevilo_domin(n) for n in range(7)}
+        mozne_poteze = self.mozne_poteze(igrane_domine)
+        for poteza in mozne_poteze:
+            if igrane_domine.se_zapre_na_eno_stran(poteza) and self.se_splaca_zapret(poteza,igrane_domine):
+                return poteza
+        for poteza in mozne_poteze:
+            if poteza.domino.je_dvojna() and prestete_domine[poteza.domino.leve_pike] > 1:
+                return poteza
+        for poteza in mozne_poteze:
+            if prestete_domine[poteza.domino.leve_pike] > 1 and prestete_domine[poteza.domino.desne_pike] > 1:
+                return poteza
+        for poteza in mozne_poteze:
+            if prestete_domine[poteza.domino.leve_pike] > 2 or prestete_domine[poteza.domino.leve_pike] > 2:
+                return poteza
+        for poteza in mozne_poteze:
+            if prestete_domine[poteza.domino.leve_pike] > 1 or prestete_domine[poteza.domino.leve_pike] > 1:
+                return poteza        
+        return random.choice(mozne_poteze)
+
+    def pozna_premisljena_poteza(self,igrane_domine,igra):
+        for poteza in self.mozne_poteze(igrane_domine):
+            if self.lahko_dokoncno_zaprem(poteza,igrane_domine):
+                if self.se_splaca_dokoncno_zapret(poteza,igrane_domine,igra):
+                    return poteza
+        return self.zgodnja_premisljena_poteza(igrane_domine)
+
+    def lahko_dokoncno_zaprem(self,poteza,igrane_domine):
+        zaprto_stevilo = igrane_domine.stran(igrane_domine.druga_stran(poteza.stran))
+        if igrane_domine.se_zapre_na_eno_stran(poteza):
+            if igrane_domine.stevilo_igranih(zaprto_stevilo) == 6:
+                return True
+            elif igrane_domine.stevilo_igranih(zaprto_stevilo) == 5:
+                dvojno_domino = Domino(zaprto_stevilo,zaprto_stevilo)
+                return not dvojno_domino.domino in igrane_domine.igrane
+            else: 
+                return False
+        else:
+            return False
+
+    def se_splaca_dokoncno_zapret(self,poteza,igrane_domine,igra):
+        zaprto_stevilo = igrane_domine.stran(igrane_domine.druga_stran(poteza.stran))
+        dvojno_domino = Domino(zaprto_stevilo, zaprto_stevilo)
+        nasprotnikove_pike_po_zaprtju = self.stevilo_preostalih_pik(igra)
+        if igrane_domine.stevilo_igranih(zaprto_stevilo) == 6:
+            return self.stevilo_pik() - poteza.domino.pike <= nasprotnikove_pike_po_zaprtju
+        elif igrane_domine.stevilo_igranih(zaprto_stevilo) == 5:
+            if dvojno_domino in self.domine:
+                return self.stevilo_pik() - poteza.domino.pike - dvojno_domino.pike <= nasprotnikove_pike_po_zaprtju
+            else:
+                stevilo_pik_najvecjih = self.stevilo_pik_najvecjih_moznih_nerazdeljenih(igra)
+                moje_mozne_pike = self.stevilo_pik() - poteza.domino.pike + stevilo_pik_najvecjih
+                nasprotnikove_mozne_pike = nasprotnikove_pike_po_zaprtju - stevilo_pik_najvecjih
+                return moje_mozne_pike <= nasprotnikove_mozne_pike
+        else:
+            return False
+
+    def stevilo_preostalih_pik(self,igra):
+        stevilo_pik = 0
+        for domino in igra.nerazdeljene_domine:
+            stevilo_pik += domino.pike
+        for domino in self.nasprotnik(igra).domine:
+            stevilo_pik += domino.pike
+        return stevilo_pik
+        
+    def stevilo_pik_najvecjih_moznih_nerazdeljenih(self,igra):
+        domine = igra.nerazdeljene_domine + self.nasprotnik(igra).domine
+        pike = []
+        for domino in domine:
+            pike.append(domino.pike)
+        stevilo_pik = 0
+        for _ in range(len(igra.nerazdeljene_domine)):
+            stevilo_pik += max(pike)
+            pike.remove(max(pike))
+        return stevilo_pik
+
+#igra.igrane_domine = Igrane_domine([(3,4),(4,5),(5,5),(5,3),(3,1),(1,1),(1,6),(6,6),(6,4),(4,2),(2,0),(0,1),(1,2),(2,2)])
+#igra.igralec1.domine = [Domino(6,3),Domino(6,5),Domino(5,0),Domino(6,0),Domino(4,0),Domino(3,2)]
+#igra.igralec2.domine = [Domino(0,3),Domino(0,0),Domino(4,4),Domino(4,1),Domino(5,2),Domino(3,3)]
+#igra.nerazdeljene_domine = [Domino(1,5),Domino(6,2)]
+
+    def prestete_lastne_in_igrane_domine(self,igrane_domine):
+        return {n:(igrane_domine.stevilo_igranih(n) + self.stevilo_domin(n)) for n in range(7)}
+
+    def se_splaca_zapret(self,poteza,igrane_domine):
+        prestete_domine = {n:self.stevilo_domin(n) for n in range(7)}
+        zaprte_pike = igrane_domine.stran(igrane_domine.druga_stran(poteza.stran))
+        return prestete_domine[zaprte_pike] > 2
+    
+    def dvojne_domine(self):
+        moje_dvojne = []
+        for domino in self.domine:
+            if domino.je_dvojna():
+                moje_dvojne.append(domino)
+        return moje_dvojne
+##################################################################################################################
+
     def odstrani_domino(self,domino):
         for domina in self.domine:
             if domina == domino:
@@ -348,7 +499,7 @@ class Igralec:
 
     def mozne_poteze(self,igrane_domine):
         mozne_poteze = []
-        for domino in self.domine:
+        for domino in sorted(self.domine)[::-1]:
             for stran in ["L","D"]:
                 if igrane_domine.se_lahko_doda_na_stran(domino,stran):
                     mozne_poteze.append(Poteza(domino,stran,self))
@@ -386,6 +537,17 @@ class Domino:
     def __eq__(self,other):
         return self.domino == other.domino
 
+    def __ne__(self,other):
+        return not self == other
+        
+    def __lt__(self,other):
+        if max(self.domino) < max(other.domino):
+            return True
+        elif max(self.domino) > max(other.domino):
+            return False
+        elif max(self.domino) == max(other.domino):
+            return self.druge_pike(max(self.domino)) < other.druge_pike(max(other.domino))
+
     def __repr__(self):
         return '({},{})'.format(self.leve_pike, self.desne_pike)
     
@@ -406,8 +568,18 @@ class Domino:
         else:
             return False
 
+    def ima_specificne_pike(self,specificne_pike):
+        return self.leve_pike == specificne_pike or self.desne_pike == specificne_pike
+
+    def druge_pike(self, prve_pike): 
+        if self.leve_pike == prve_pike:
+            return self.desne_pike
+        elif self.desne_pike == prve_pike:
+            return self.leve_pike
+
     def slika(self):
         return str(self) + '.jpg'
+
 
 class Igra_design:
     def __init__(self,width = 9, height = 20):
