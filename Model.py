@@ -6,31 +6,47 @@ class Igra:
         self.igralec1 = igralec1
         self.igralec2 = igralec2
         self.igrane_domine = Igrane_domine()
-        #novi class nerazdeljene_domine
-        self.nerazdeljene_domine = [ Domino(6,6), Domino(6,5), Domino(6,4), Domino(6,3), Domino(6,2), Domino (6,1), Domino(6,0),
-                        Domino(5,5), Domino(5,4), Domino(5,3), Domino(5,2), Domino(5,1), Domino(5,0),
-                        Domino(4,4), Domino(4,3), Domino(4,2), Domino(4,1), Domino(4,0),
-                        Domino(3,3), Domino(3,2), Domino(3,1), Domino(3,0),
-                        Domino(2,2), Domino(2,1), Domino(2,0),
-                        Domino(1,1), Domino(1,0),
-                        Domino(0,0)]
+        self.nerazdeljene_domine = [Domino(n,i) for n in range(6,-1,-1) for i in range(n,-1,-1)]
+
+    def koncne_tocke(self):
+        sestevek = 0
+        for igralec in self.igralci:
+            for domino in igralec.domine:
+                sestevek += domino.pike
+        for domino in self.nerazdeljene_domine:
+            sestevek += domino.pike
+        return sestevek
+
+    def je_konec_igre(self):
+        if len(self.igralec1.domine) == 0 or len(self.igralec2.domine) == 0:
+            return True
+        elif len(self.nerazdeljene_domine) == 0:
+            moznepoteze1 = self.igralec1.mozne_poteze(self.igrane_domine)
+            moznepoteze2 = self.igralec2.mozne_poteze(self.igrane_domine)
+            if len(moznepoteze1) == 0 and len(moznepoteze2) == 0:
+                return True
+        return False
+
+    def nakljucna_iz_nerazdeljenih(self):
+        nakljucna_domina = random.choice(self.nerazdeljene_domine)
+        self.nerazdeljene_domine.remove(nakljucna_domina)
+        return nakljucna_domina
 
     def razdeli(self):
         for igralec in self.igralci:
             for _ in range(7):
-                nakljucna_domina = random.choice(self.nerazdeljene_domine)
-                igralec.dodaj_domino(nakljucna_domina)
-                self.nerazdeljene_domine.remove(nakljucna_domina)
+                igralec.dodaj_domino(self.nakljucna_iz_nerazdeljenih())
     
     def zacni_igro(self):
         for n in range(6,-1,-1):
             for igralec in self.igralci:
-                if Domino(n,n).domino in igralec.domine:
-                    self.igralec_na_potezi = igralec
-                    igralec.poteza(Domino(n,n))
-                    self.igrane_domine.dodaj_prvo(Domino(n,n))
-                    self.naslednji_na_potezi()
-                    return
+                for domino in igralec.domine:
+                    if domino.domino == Domino(n,n).domino:
+                        self.igralec_na_potezi = igralec
+                        igralec.odstrani_domino(Domino(n,n))
+                        self.igrane_domine.dodaj_prvo(Domino(n,n))
+                        self.naslednji_na_potezi()
+                        return
         self.igralec_na_potezi = self.igralec1          
 
     def naslednji_na_potezi(self):
@@ -39,9 +55,25 @@ class Igra:
         elif self.igralec_na_potezi == self.igralec2:
             self.igralec_na_potezi = self.igralec1
 
+    def nakljucna_poteza(self):
+        mozne_poteze = self.igralec_na_potezi.mozne_poteze(self.igrane_domine)
+        while len(mozne_poteze) == 0:
+            self.dodaj_domino()
+            mozne_poteze = self.igralec_na_potezi.mozne_poteze(self.igrane_domine)
+        self.igralec_na_potezi.nakljucna_poteza(self.igrane_domine)
+        self.naslednji_na_potezi()
 
-    def poteza(self):
-        self.igralec_na_potezi.poteza()
+    def poteza(self,poteza):
+        self.igralec_na_potezi.poteza(self.igrane_domine,poteza)
+        self.naslednji_na_potezi()
+
+    def dodaj_domino(self):
+        self.igralec_na_potezi.dodaj_domino(self.nakljucna_iz_nerazdeljenih())
+    
+    def dodaj_do_poteze(self):
+        while len(self.igralec_na_potezi.mozne_poteze(self.igrane_domine)) == 0:
+            self.dodaj_domino()
+            
 
 class Igrane_domine:
     def __init__(self):
@@ -55,50 +87,109 @@ class Igrane_domine:
             return tabla
 
     def dodaj_na_levi(self,domino):
-        self.igrane.insert(0,domino.domino)
-        self.leva_stran = domino.leve_pike
+        if domino.desne_pike == self.leva_stran:
+            self.igrane.insert(0,domino.domino)
+            self.leva_stran = domino.leve_pike
+        elif domino.leve_pike == self.leva_stran:
+            self.igrane.insert(0,domino.obrnjeno_domino)
+            self.leva_stran = domino.desne_pike
 
     def dodaj_na_desni(self,domino):
-        self.igrane.append(domino.domino)
-        self.desna_stran = domino.desne_pike
+        if domino.leve_pike == self.desna_stran:
+            self.igrane.append(domino.domino)
+            self.desna_stran = domino.desne_pike
+        elif domino.desne_pike == self.desna_stran:
+            self.igrane.append(domino.obrnjeno_domino)
+            self.desna_stran = domino.leve_pike
 
     def dodaj_prvo(self,domino):
         self.igrane.append(domino.domino)
         self.leva_stran = domino.leve_pike
         self.desna_stran = domino.desne_pike
 
+    def se_lahko_doda_na_levi(self,domino):
+        if domino.leve_pike == self.leva_stran or domino.desne_pike == self.leva_stran:
+            return True
+        else: return False
     
+    def se_lahko_doda_na_desni(self,domino):
+        if domino.leve_pike == self.desna_stran or domino.desne_pike == self.desna_stran:
+            return True
+        else: return False
+
+    def je_prava_poteza(self,poteza):
+        if poteza[1] == "L":
+            if self.se_lahko_doda_na_levi(poteza[0]):
+                return True
+        elif poteza[1] == "D":
+            if self.se_lahko_doda_na_desni(poteza[0]):
+                return True
+        return False
+
 
 
     
 class Igralec:
-    def __init__(self):
+    def __init__(self,ime = "Računalnik"):
         self.domine = []
+        self.ime = ime
+
+    def __repr__(self):
+        return self.ime
 
     def dodaj_domino(self,domino):
-        Domine = self.domine
-        Domine.append(domino.domino)
-        self.domine = Domine
+        self.domine.append(domino)
 
     def razpolozljive_domine(self):
-        return self.domine
+        razpolozljive_domine = []
+        for domino in self.domine:
+            razpolozljive_domine.append(domino.domino)
+        return razpolozljive_domine
 
-    def poteza(self,domino):
-        self.domine.remove(domino.domino)
+    #def poteza(self,igrane_domine,poteza):
+
+    def poteza(self,igrane_domine,poteza):
+        if poteza[1] == "L":
+            igrane_domine.dodaj_na_levi(poteza[0])
+            self.odstrani_domino(poteza[0])
+        elif poteza[1] == "D":
+            igrane_domine.dodaj_na_desni(poteza[0])
+            self.odstrani_domino(poteza[0])
+
+    def nakljucna_poteza(self,igrane_domine):
+        mozne_poteze = self.mozne_poteze(igrane_domine)
+        nakljucna_poteza = random.choice(mozne_poteze)
+        if nakljucna_poteza[1] == "L":
+            igrane_domine.dodaj_na_levi(nakljucna_poteza[0])
+            self.odstrani_domino(nakljucna_poteza[0])
+        elif nakljucna_poteza[1] == "D":
+            igrane_domine.dodaj_na_desni(nakljucna_poteza[0])
+            self.odstrani_domino(nakljucna_poteza[0])
+
+    def odstrani_domino(self,domino):
+        for domina in self.domine:
+            if domina.domino == domino.domino or domina.domino == domino.obrnjeno_domino:
+                self.domine.remove(domina)
+                return
+
+    def mozne_poteze(self,igrane_domine):
+        mozne_poteze = []
+        for domino in self.domine:
+            if domino.leve_pike == igrane_domine.leva_stran or domino.desne_pike == igrane_domine.leva_stran:
+                mozne_poteze.append([domino,"L"])
+
+            if domino.leve_pike == igrane_domine.desna_stran or domino.desne_pike == igrane_domine.desna_stran:
+                mozne_poteze.append([domino,"D"])
+        return mozne_poteze
+
 
 class Domino:
     def __init__(self,leve_pike, desne_pike):
         self.leve_pike = leve_pike
         self.desne_pike = desne_pike
         self.domino = (leve_pike,desne_pike)
-    
+        self.obrnjeno_domino = (desne_pike, leve_pike)
+        self.pike = leve_pike + desne_pike
     def __repr__(self):
         return '({}, {})'.format(self.leve_pike, self.desne_pike)
     
-    
-    def obrni(self):
-        self.domino = self.domino.reverse()
-        self.leve_pike = self.domino(0)
-        self.desne_pike = self.domino(1)
-
-
