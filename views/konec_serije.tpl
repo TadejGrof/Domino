@@ -40,8 +40,10 @@
         </div>
 
         %n = -1
+        %i = 0
         %for koncana_igra in serija.koncane_igre[::-1]:
             % n = n + 1
+            % i = i - 1
             %if koncana_igra.zmagovalec == serija.igralec1:
             %barva = "green"
             %elif koncana_igra.zmagovalec == serija.igralec2:
@@ -60,7 +62,7 @@
                  <div class="način_zmage">
                     %if koncana_igra.kapikua:
                         <font color="white">Kapikua</font>
-                    %elif len(koncana_igra.igralec1.domine) == 0 or len(koncana_igra.igralec2.domine) == 0:
+                    %elif len(koncana_igra.igralec1.domine_koncanih_iger[i]) == 0 or len(koncana_igra.igralec2.domine_koncanih_iger[i]) == 0:
                         <font color="white">Zadnje domino</font>
                     %else:
                         <font color="white">Manj pik</font>
@@ -73,7 +75,7 @@
                          <font color="white">{{str(koncana_igra.cas_konca.hour) + ":" + str(koncana_igra.cas_konca.minute)}}</font>
                     %end
                 </div>
-                <form class="ogled" action={{"/konec_serije/ogled_partije/" + str(n)}} method="get">
+                <form class="ogled" action={{"/konec_serije/ogled_partije/" + str(n + 1)}} method="get">
                     <input style="width:100%;height:100%" type="submit" value="ogled">
                 </form>
             </div>

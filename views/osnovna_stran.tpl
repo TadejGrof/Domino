@@ -5,7 +5,7 @@
     </head>
     <body>
         <div class="prijava">
-                <div style="text-align:center;position:absolute;width:80%;height:15%;top:10%;left:10%">
+                <div autocomplete="off" style="text-align:center;position:absolute;width:80%;height:15%;top:10%;left:10%">
                     Uporabniško ime:
                 </div>
                 <div style="position:absolute;width:50%;height:15%;top:55%;left:10%;font-size:3.5vh">

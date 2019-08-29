@@ -148,10 +148,7 @@ def konec_serije():
 @bottle.get('/konec_serije/ogled_partije/<index>')
 def ogled_partije(index):
     global serija
-    global gledana_igra
-    global oznacena_domina
-    igra = gledana_igra
-    return bottle.template("domino.tpl",serija = serija,igra = igra, index = index)
+    return bottle.template("domino.tpl",igra = None, serija = serija, index = index)
 
 @bottle.post('/konec_serije/serija_reset/')
 def serija_reset():
