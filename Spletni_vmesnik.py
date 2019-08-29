@@ -32,7 +32,8 @@ def osnovna_stran():
 def nova_serija():
     global serija
     ime = bottle.request.forms["ime"]
-    serija = Serija_Iger(Igralec(ime),Igralec(),100)
+    tocke = int(bottle.request.forms["tocke"])
+    serija = Serija_Iger(Igralec(ime),Igralec(),tocke)
     serija.nova_igra()
     igra = serija.aktivna_igra
     igra.doloci_design()
@@ -137,8 +138,6 @@ def konec_partije_ogled_partije():
     global oznacena_domina
     igra = serija.koncane_igre[-1]
     return bottle.template("domino.tpl",serija = serija, igra = igra, index = oznacena_domina)
-
-
 
 @bottle.get("/konec_serije/")
 def konec_serije():

@@ -39,6 +39,7 @@ class Igra:
         self.koncana = False
 
     ########################################################################################################
+    
     def zacetna_poteza(self):
         for n in range(6,-1,-1):
             for igralec in self.igralci:
@@ -201,6 +202,7 @@ class Igrane_domine:
         return polje
     
     ##########################################################################################################
+    
     def druga_stran(self,stran):
         if stran == "L":
             return "D"
@@ -366,7 +368,7 @@ class Igralec:
         self.odstrani_domino(nakljucna_poteza.domino)
         return nakljucna_poteza
 
-#################################################################################################################
+    #################################################################################################################
     
     def premisljena_prva_poteza(self):
         prestete_domine = {n:self.stevilo_domin(n) for n in range(7)}
@@ -465,11 +467,6 @@ class Igralec:
             pike.remove(max(pike))
         return stevilo_pik
 
-#igra.igrane_domine = Igrane_domine([(3,4),(4,5),(5,5),(5,3),(3,1),(1,1),(1,6),(6,6),(6,4),(4,2),(2,0),(0,1),(1,2),(2,2)])
-#igra.igralec1.domine = [Domino(6,3),Domino(6,5),Domino(5,0),Domino(6,0),Domino(4,0),Domino(3,2)]
-#igra.igralec2.domine = [Domino(0,3),Domino(0,0),Domino(4,4),Domino(4,1),Domino(5,2),Domino(3,3)]
-#igra.nerazdeljene_domine = [Domino(1,5),Domino(6,2)]
-
     def prestete_lastne_in_igrane_domine(self,igrane_domine):
         return {n:(igrane_domine.stevilo_igranih(n) + self.stevilo_domin(n)) for n in range(7)}
 
@@ -484,6 +481,7 @@ class Igralec:
             if domino.je_dvojna():
                 moje_dvojne.append(domino)
         return moje_dvojne
+
 ##################################################################################################################
 
     def odstrani_domino(self,domino):
@@ -654,7 +652,3 @@ class Poteza_design:
         elif self.postavitev == "v":
             self.width = width / 2
             self.height = height
-    #1-preloma -> prejsnjo + width 
-    #prelom+1 - preloma -> prejsnjo
-    #prelom - prelom -> prejsnjo - width
-    #prelom + 1-prelom -> prejsnjo
