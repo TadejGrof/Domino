@@ -61,7 +61,7 @@
                 </div>
                  <div class="način_zmage">
                     %if koncana_igra.kapikua:
-                        <font color="white">Kapikua</font>
+                        <font color="white">Capicua</font>
                     %elif len(koncana_igra.igralec1.domine_koncanih_iger[i]) == 0 or len(koncana_igra.igralec2.domine_koncanih_iger[i]) == 0:
                         <font color="white">Zadnje domino</font>
                     %else:

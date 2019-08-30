@@ -6,7 +6,7 @@
     <body>
         <div class="konec_igre">
             %if igra.kapikua:
-                KAPIKUA +25
+                CAPICUA +25
             %else:
                 Konec igre
             %end
